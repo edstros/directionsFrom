@@ -1,0 +1,22 @@
+{
+  "name": "ghpages-workflow",
+  "version": "1.0.0",
+  "homepage": "https://github.com/edstros/ghpages-workflow",
+  "authors": [
+    "Edwin Acevedo <edwin.a.acevedo@gmail.com>"
+  ],
+  "main": "index.html",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "lodash": "~3.9.3",
+    "bootstrap": "~3.3.4"
+  }
+}
