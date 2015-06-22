@@ -1,33 +1,36 @@
-var awesomeSauce = function() {
-  console.log('awesomeSauce');
-};
-awesomeSauce();
-
-var MAPS_URL = 'http://maps.googleapis.com/maps/api/js?AIzaSyBk4HCCeI5CF5I7gMy__mZiU55gqwYDuzI';
-
-var map;
-
 function initialize() {
+
+  var mapCanvas = document.getElementById('map-canvas');
   var mapOptions = {
-    zoom: 6
-  };
-  map = new google.maps.Map(document.getElementById('googleMap'),
-      mapOptions);
+    center: new google.maps.LatLng(36.1667, 86.7833),
+    zoom: 15,
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  }
+  var map = new google.maps.Map(mapCanvas, mapOptions);
+
 
   // Try HTML5 geolocation
-  if(navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function (position) {
       var pos = new google.maps.LatLng(position.coords.latitude,
-                                       position.coords.longitude);
+        position.coords.longitude);
 
       var infowindow = new google.maps.InfoWindow({
         map: map,
         position: pos,
         content: 'You are here.'
       });
+      var marker = new google.maps.Marker({
+        position: pos,
+        map: map,
+        title: 'Geolocation success!'
+      });
+      google.maps.event.addListener(marker, 'click', function () {
+        infowindow.open(map, marker);
+      });
 
       map.setCenter(pos);
-    }, function() {
+    }, function () {
       handleNoGeolocation(true);
     });
   } else {
@@ -45,7 +48,7 @@ function handleNoGeolocation(errorFlag) {
 
   var options = {
     map: map,
-    position: new google.maps.LatLng(60, 105),
+    position: new google.maps.LatLng(36.1667, 86.7833),
     content: content
   };
 

@@ -3,22 +3,25 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>My App</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <title>Fun Experiments with Google Maps</title>
     <link rel="stylesheet" href="css/main.css">
   </head>
   <body>
-    <header>
-      <h2>Howdy!</h2>
-    </header>
     <div class="container">
-      <div id="googleMap"></div>
-      <footer>
-        <h2>Goodbye!</h2>
-      </footer>
+      <div id="searchControls">
+        <form>
+          <input type="text" id="placesSearch" placeholder="Your Destination">
+          <input id="searchButton" type="button" value="Find It!">
+        </form>
+      </div>
     </div>
+    <div id="map-canvas"></div>
+    <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAI7DrVYSz0-Z-zE3iV85PmRy9f-6MU4Uc"></script>
+    <script language="javascript" type="text/javascript" src="js/map.js"></script>
+    <script language="javascript" type="text/javascript" src="js/search.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/all.js"></script>
-    <script src="http://maps.googleapis.com/maps/api/js"></script>
   </body>
 </html>
