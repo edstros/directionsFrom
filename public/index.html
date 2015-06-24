@@ -5,14 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <title>Fun Experiments with Google Maps</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/main.css">
   </head>
   <body>
     <div class="container">
       <div id="searchControls">
-        <form>
-          <input id="whereTo" type="text" placeholder="Where To?">
-          <input id="btnWhereTo" type="button" value="Find It!">
+        <form class="input-group input-group-lg">
+          <input id="whereTo" type="text" placeholder="Where To?" class="form-control"><span class="input-group-btn">
+            <input id="btnWhereTo" type="button" value="Go!" class="btn btn-info"></span>
         </form>
       </div>
     </div>
@@ -20,6 +21,7 @@
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAI7DrVYSz0-Z-zE3iV85PmRy9f-6MU4Uc"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false&amp;libraries=places"></script>
     <script src="js/main.js"></script>
   </body>
 </html>

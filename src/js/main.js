@@ -1,37 +1,34 @@
 var directionsDisplay;
 var directionsService = new google.maps.DirectionsService();
 var map;
-
-console.log(whereTo + 'top of the js file');
-
 function initialize() {
   var mapCanvas = document.getElementById('map-canvas'); //div in the html
   var mapOptions = {
     center: new google.maps.LatLng(36.1667, 86.7833), //NashVegas, TN
     zoom: 15,
-    mapTypeId: google.maps.MapTypeId.ROADMAP
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    scrollwheel: false,
   }
   map = new google.maps.Map(mapCanvas, mapOptions);
   console.log(map); //this works, produces map object
   // Try HTML5 geolocation
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function (position) {
-      var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude); //pos should be available to use as the start
+      var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
       var infowindow = new google.maps.InfoWindow({
         map: map,
         position: pos,
         pixelOffset: new google.maps.Size(0, -20),
-        content: 'Hi Lily'
+        content: 'Start here'
       });
       var marker = new google.maps.Marker({
         position: pos,
         map: map,
         animation: google.maps.Animation.DROP,
-        title: 'I love you Lily!'
+        title: 'This marks geolocation'
       });
       //copied the next six lines from google
       google.maps.event.addListener(marker, 'click', toggleBounce);
-
       function toggleBounce() {
         if (marker.getAnimation() !== null) {
           marker.setAnimation(null);
@@ -57,14 +54,12 @@ function initialize() {
     handleNoGeolocation(false);
   }
 }
-
 function handleNoGeolocation(errorFlag) {
   if (errorFlag) {
     var content = 'Aw snap! Something went wrong with the Geolocation service. Sorry?';
   } else {
     var content = 'Aw, snap! Your browser doesn\'t support geolocation.';
   }
-
   var options = {
     map: map,
     position: new google.maps.LatLng(36.1667, 86.7833),
@@ -73,11 +68,51 @@ function handleNoGeolocation(errorFlag) {
   var infowindow = new google.maps.InfoWindow(options);
   map.setCenter(options.position);
 }
-    console.log(whereTo + 'before calcRoute');
-
+//autocomplete for the search box
+var pac_input = document.getElementById('whereTo');
+(function pacSelectFirst(input) {
+  // store the original event binding function
+  var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
+  function addEventListenerWrapper(type, listener) {
+    // Simulate a 'down arrow' keypress on hitting 'return' when no pac suggestion is selected,
+    // and then trigger the original listener.
+    if (type == "keydown") {
+      var orig_listener = listener;
+      listener = function (event) {
+        var suggestion_selected = $(".pac-item-selected").length > 0;
+        if (event.which == 13 && !suggestion_selected) {
+          var simulated_downarrow = $.Event("keydown", {
+            keyCode: 40,
+            which: 40
+          })
+          orig_listener.apply(input, [simulated_downarrow]);
+        }
+        orig_listener.apply(input, [event]);
+      };
+    }
+    // add the modified listener
+    _addEventListener.apply(input, [type, listener]);
+  }
+  if (input.addEventListener)
+    input.addEventListener = addEventListenerWrapper;
+  else if (input.attachEvent)
+    input.attachEvent = addEventListenerWrapper;
+})(pac_input);
+$(function () {
+  var autocomplete = new google.maps.places.Autocomplete(pac_input);
+});
+//draws the directions on the page
 function calcRoute() {
-  var input = document.querySelector('#whereTo'); //takes the user's input
-var whereTo = input.value; //takes the value of the user input for the destination
+  var input = document.querySelector('#whereTo');
+  var whereTo = input.value;
+var hooters2ndAve = new google.maps.LatLng(36.1646, -86.7766);
+  var waypts = [{
+    location: hooters2ndAve,
+    stopover: true
+  }];
+  /*  function addHooters () {
+      var hooters2ndAve = new google.maps.LatLng(36.1646,-86.7766);
+    waypoints.push();*/
   directionsDisplay = new google.maps.DirectionsRenderer();
   directionsDisplay.setMap(map);
   navigator.geolocation.getCurrentPosition(function (position) {
@@ -85,8 +120,11 @@ var whereTo = input.value; //takes the value of the user input for the destinati
     var request = {
       origin: pos, //from geolocation
       destination: whereTo, //from input.value of #whereTo
+      waypoints: waypts,
+      optimizeWaypoints: false,
       travelMode: google.maps.TravelMode.DRIVING
     };
+   // console.log(waypts);
     console.log(pos);
     console.log(whereTo);
     directionsService.route(request, function (response, status) {

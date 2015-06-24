@@ -4,18 +4,22 @@ html(lang="en-US")
     meta(charset="utf-8")
     meta(http-equiv="X-UA-Compatible", content="IE=edge")
     meta(name='viewport', content='initial-scale=1.0, user-scalable=no')
+
     block title
       title Fun Experiments with Google Maps
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css")
     link(rel="stylesheet", href="css/main.css")
   body
     .container
       #searchControls
-        form
-          input#whereTo(type="text" placeholder="Where To?")
-          input#btnWhereTo(type="button" value="Find It!")
+        form.input-group.input-group-lg
+          input#whereTo.form-control(type="text" placeholder="Where To?")
+          span.input-group-btn
+            input.btn.btn-info#btnWhereTo(type="button" value="Go!")
     #map-canvas
     
     script(src='//code.jquery.com/jquery-1.11.0.min.js')
     script(src='//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js')
     script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyAI7DrVYSz0-Z-zE3iV85PmRy9f-6MU4Uc')
+    script(src='https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places')
     script(src="js/main.js")
