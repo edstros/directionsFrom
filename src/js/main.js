@@ -21,13 +21,13 @@ function initialize() {
         map: map,
         position: pos,
         pixelOffset: new google.maps.Size(0, -20),
-        content: 'Found you! You are here.'
+        content: 'Hi Lily'
       });
       var marker = new google.maps.Marker({
         position: pos,
         map: map,
         animation: google.maps.Animation.DROP,
-        title: 'Your current location'
+        title: 'I love you Lily!'
       });
       //copied the next six lines from google
       google.maps.event.addListener(marker, 'click', toggleBounce);
