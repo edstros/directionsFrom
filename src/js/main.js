@@ -1,6 +1,10 @@
 var directionsDisplay;
 var directionsService = new google.maps.DirectionsService();
 var map;
+////////////////////////
+//start the party
+////////////////////////
+
 function initialize() {
   var mapCanvas = document.getElementById('map-canvas'); //div in the html
   var mapOptions = {
@@ -25,9 +29,9 @@ function initialize() {
         position: pos,
         map: map,
         animation: google.maps.Animation.DROP,
-        title: 'This marks geolocation'
+        title: 'This is your geolocation'
       });
-      //copied the next six lines from google
+      //copied the next six lines from google, not gonna lie
       google.maps.event.addListener(marker, 'click', toggleBounce);
       function toggleBounce() {
         if (marker.getAnimation() !== null) {
@@ -55,20 +59,24 @@ function initialize() {
   }
 }
 function handleNoGeolocation(errorFlag) {
-  if (errorFlag) {
-    var content = 'Aw snap! Something went wrong with the Geolocation service. Sorry?';
-  } else {
-    var content = 'Aw, snap! Your browser doesn\'t support geolocation.';
+    if (errorFlag) {
+      var content = 'Aw snap! Something went wrong with the Geolocation service. Sorry?';
+    } else {
+      var content = 'Aw, snap! Your browser doesn\'t support geolocation.';
+    }
+    var options = {
+      map: map,
+      position: new google.maps.LatLng(36.1667, 86.7833),
+      content: content
+    };
+    var infowindow = new google.maps.InfoWindow(options);
+    map.setCenter(options.position);
   }
-  var options = {
-    map: map,
-    position: new google.maps.LatLng(36.1667, 86.7833),
-    content: content
-  };
-  var infowindow = new google.maps.InfoWindow(options);
-  map.setCenter(options.position);
-}
+
+//////////////////////////////////
 //autocomplete for the search box
+/////////////////////////////////
+
 var pac_input = document.getElementById('whereTo');
 (function pacSelectFirst(input) {
   // store the original event binding function
@@ -101,18 +109,25 @@ var pac_input = document.getElementById('whereTo');
 $(function () {
   var autocomplete = new google.maps.places.Autocomplete(pac_input);
 });
-//draws the directions on the page
+//////////////////////////////
+//draw the route on the map
+/////////////////////////////
+
 function calcRoute() {
+
+  console.log(map + "line 114"); // returns [object Object]
   var input = document.querySelector('#whereTo');
   var whereTo = input.value;
-var hooters2ndAve = new google.maps.LatLng(36.1646, -86.7766);
+  var hooters2ndAve = new google.maps.LatLng(36.164563, -86.776568);
+  //var hooters2ndAve =  {    placeId: 'ChIJH_4dHFpmZIgR5zLArMUmS0c'  };//this is place_Id
   var waypts = [{
     location: hooters2ndAve,
     stopover: true
   }];
   /*  function addHooters () {
       var hooters2ndAve = new google.maps.LatLng(36.1646,-86.7766);
-    waypoints.push();*/
+    waypoints.push()/*blah, blah, blah;*/
+
   directionsDisplay = new google.maps.DirectionsRenderer();
   directionsDisplay.setMap(map);
   navigator.geolocation.getCurrentPosition(function (position) {
@@ -124,7 +139,8 @@ var hooters2ndAve = new google.maps.LatLng(36.1646, -86.7766);
       optimizeWaypoints: false,
       travelMode: google.maps.TravelMode.DRIVING
     };
-   // console.log(waypts);
+    // console.log(waypts);
+    console.log(map);
     console.log(pos);
     console.log(whereTo);
     directionsService.route(request, function (response, status) {
