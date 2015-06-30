@@ -4,7 +4,6 @@ var map;
 ////////////////////////
 //start the party
 ////////////////////////
-
 function initialize() {
   var mapCanvas = document.getElementById('map-canvas'); //div in the html
   var mapOptions = {
@@ -72,11 +71,9 @@ function handleNoGeolocation(errorFlag) {
     var infowindow = new google.maps.InfoWindow(options);
     map.setCenter(options.position);
   }
-
-//////////////////////////////////
-//autocomplete for the search box
-/////////////////////////////////
-
+  //////////////////////////////////
+  //autocomplete for the search box
+  /////////////////////////////////
 var pac_input = document.getElementById('whereTo');
 (function pacSelectFirst(input) {
   // store the original event binding function
@@ -112,14 +109,17 @@ $(function () {
 //////////////////////////////
 //draw the route on the map
 /////////////////////////////
-
 function calcRoute() {
-
-  console.log(map + "line 114"); // returns [object Object]
+  console.dir(map + "line 114"); // returns [object Object]
+  var MAPS_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
   var input = document.querySelector('#whereTo');
   var whereTo = input.value;
-  var hooters2ndAve = new google.maps.LatLng(36.164563, -86.776568);
-  //var hooters2ndAve =  {    placeId: 'ChIJH_4dHFpmZIgR5zLArMUmS0c'  };//this is place_Id
+  var destinationAddress = whereTo.split(' ').join('+');
+  var hooters2ndAve = new google.maps.LatLng(36.1618914, -86.789464);
+  var hootersLebanonPike = new google.maps.LatLng(36.18633370000001, -86.63314799999999);
+  var hootersLargoDrive = new google.maps.LatLng(36.081514, -86.7095413);
+  var midTnHooters = [hootersLebanonPike, hooters2ndAve, hootersLargoDrive]
+    //var hooters2ndAve =  new.google.maps.place.place_id('ChIJH_4dHFpmZIgR5zLArMUmS0c');//this is place_Id
   var waypts = [{
     location: hooters2ndAve,
     stopover: true
@@ -127,23 +127,33 @@ function calcRoute() {
   /*  function addHooters () {
       var hooters2ndAve = new google.maps.LatLng(36.1646,-86.7766);
     waypoints.push()/*blah, blah, blah;*/
-
   directionsDisplay = new google.maps.DirectionsRenderer();
   directionsDisplay.setMap(map);
   navigator.geolocation.getCurrentPosition(function (position) {
-    var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-    var request = {
-      origin: pos, //from geolocation
-      destination: whereTo, //from input.value of #whereTo
-      waypoints: waypts,
-      optimizeWaypoints: false,
-      travelMode: google.maps.TravelMode.DRIVING
-    };
-    // console.log(waypts);
-    console.log(map);
-    console.log(pos);
-    console.log(whereTo);
-    directionsService.route(request, function (response, status) {
+      var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+      var request = {
+        origin: pos, //from geolocation
+        destination: whereTo, //from input.value of #whereTo
+        waypoints: waypts,
+        //placeId: 'ChIJOwE7_GTtwokRFq0uOwLSE9g'
+        optimizeWaypoints: false,
+        travelMode: google.maps.TravelMode.DRIVING
+      };
+      //do your magic, jquery, and go get that LatLng
+      input.addEventListener('click', findLatLng);
+      function findLatLng() {
+        $.get(MAPS_URL + destinationAddress, function (data) {
+            var distances = [];
+            var destLat = data.results[0].geometry.location.lat;
+            var destLng = data.results[0].geometry.location.lng;
+            var destLatLng = destLat + ',' + destLng;
+            var goToHooters = Math.min.apply(Math, midTnHooters);
+            goToHooters();
+            console.log(goToHooters)
+          });
+           console.log(data);
+        };
+     console.log(waypts); console.log(map); console.log(pos); console.log(whereTo); console.log(destinationAddress); directionsService.route(request, function (response, status) {
       if (status == google.maps.DirectionsStatus.OK) {
         directionsDisplay.setDirections(response);
       }
