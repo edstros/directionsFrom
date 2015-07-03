@@ -9,7 +9,7 @@ var destLatLng;
 function initialize() {
     var mapCanvas = document.getElementById('map-canvas'); //div in the html
     var mapOptions = {
-      center: new google.maps.LatLng(36.1667, 86.7833), //NashVegas, TN
+      center: new google.maps.LatLng(36.1667, -86.7833), //NashVegas, TN
       zoom: 15,
       mapTypeId: google.maps.MapTypeId.ROADMAP,
       scrollwheel: false,
@@ -67,25 +67,41 @@ function initialize() {
   //which breaks the app
   //////////////////////////////
 function closestHooters() {
+
   var input = document.querySelector('#whereTo');
   var whereTo = input.value;
   var destinationAddress = whereTo.split(' ').join('+');
   var MAPS_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
+
+  var hootersWaypoint;
   $.get(MAPS_URL + destinationAddress, function (data) {
-    var distances = [];
+    console.log(data); //now it sees this
+    var hootersDistances = [];
     var destLat = data.results[0].geometry.location.lat;
+    var destLatCoord = parseFloat(destLat); //otherwise returns a string
+    console.log("destination latitude with parstFloat", destLat);
     var destLng = data.results[0].geometry.location.lng;
-    var destLatLng = destLat + ',' + destLng;
+    var destLngCoord = parseFloat(destLng);
+    var destLatLng = new google.maps.LatLng(destLatCoord, destLngCoord);
+    console.log("both together", destLatLng);
     var hooters2ndAve = new google.maps.LatLng(36.1618914, -86.789464);
     var hootersLebanonPike = new google.maps.LatLng(36.18633370000001, -86.63314799999999);
     var hootersLargoDrive = new google.maps.LatLng(36.081514, -86.7095413);
-    var distSecondAve = new google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hooters2ndAve);
-    var distLebanonPike = new google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hootersLebanonPike);
-    var distLargoDrive = new google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hootersLargoDrive);
-    console.dir(distSecondAve);
-    /* var hootersWaypoint =*/
-    distances.push(distLargoDrive, distLebanonPike, distSecondAve).Math.min.apply(Math, distances);
-    console.log(hootersWaypoint.min); //return hootersWaypoint.min();
+    console.log("both together and the 2nd Ave Hooters", destLatLng, "2nd Ave", hooters2ndAve);
+    var distSecondAve = google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hooters2ndAve);
+    var distLebanonPike = google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hootersLebanonPike);
+    var distLargoDrive = google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hootersLargoDrive);
+    hootersDistances.push(distLargoDrive, distLebanonPike, distSecondAve);
+    var nearestHooters = Math.min.apply(Math, hootersDistances);
+    hootersWaypoint = function () {
+      if (nearestHooters === distSecondAve) {
+        return hooters2ndAve
+      } else if (nearestHooters === distLargoDrive) {
+        return hootersLargoDrive
+      } else if (nearestHooters === distLebanonPike) {
+        return hootersLebanonPike
+      }
+    }
   });
 }
 
@@ -159,7 +175,7 @@ function calcRoute(pos, destLatLng, hootersWaypoint) {
   console.log(map);
   console.log(pos);
   console.log(whereTo);
-  console.log(destinationAddress);
+
   directionsService.route(request, function (response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsDisplay.setDirections(response);
