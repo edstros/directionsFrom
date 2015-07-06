@@ -26,6 +26,7 @@ function initialize() {
           pixelOffset: new google.maps.Size(0, -20),
           content: 'Start here'
         });
+        console.log(pos);
         var marker = new google.maps.Marker({
           position: pos,
           map: map,
@@ -63,14 +64,11 @@ function initialize() {
     }
   }
   //////////////////////////////
-  //destLatLng returns a string,
-  //which breaks the app
+  //returns objects! hallelujah!
   //////////////////////////////
- 
 function closestHooters() {
   var whereTo = document.querySelector('#whereTo').value.split(' ').join('+');
   var MAPS_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
-
   $.get(MAPS_URL + whereTo, function (data) {
     console.log('data', data); //now it sees this
     var hootersDistances = [];
@@ -98,12 +96,14 @@ function closestHooters() {
       } else if (nearestHooters === distLebanonPike) {
         return hootersLebanonPike;
       }
-    };hootersWaypoint();
+    };
+    hootersWaypoint();
     var hootersMarker = new google.maps.Marker({
       position: hooters2ndAve,
       map: map,
       icon: 'http://edwinacevedo.com/directionsFrom/img/hooters-marker.png'
-  });});
+    });
+  });
 }
 
 function handleNoGeolocation(errorFlag) {
@@ -160,52 +160,74 @@ $(function () {
 //draw the route on the map
 /////////////////////////////
 function calcRoute(pos, destLatLng, hootersWaypoint) {
-  console.log('closestHooters', closestHooters);
-
-//placing the owl, these lines from here
+  //console.log('closestHooters', closestHooters);
+  //placing the owl, these lines from here
   var markers = [];
-google.maps.event.addListener(map, 'click', function(event) {
-    addMarker(event.latLng);
-  });
-function addMarker(waypts) {
-  var marker = new google.maps.Marker({
+  google.maps.event.addListener(map, 'click', function (event) {
+     addMarker(event.latLng);
+   });
+  //////////////////////////////////////
+  //changing the name from marker to hootersMarker
+  //////////////////////////////////////
+  console.log(hootersWaypoint, 'hootersWaypoint')
+  var hootersMarker = new google.maps.Marker({
     position: waypts,
     map: map,
-    image: 'http://edwinacevedo.com/directionsFrom/img/hooters-marker.png'
+    title: 'Stop for wings and beer!',
+    icon: 'http://edwinacevedo.com/directionsFrom/img/hooters-marker.png'
   });
-  markers.push(marker);
-}
-
-//to here
-  
+  markers.push(hootersMarker);
+  // ### end owl marker
+  //added infowindow from here
+  /*var contentString = '<div id="content">' +
+    '<h1 id="firstHeading" class="firstHeading">Stop here for beer & wings</h1>' +
+    '</div>';*/
+  /*var infowindow = new google.maps.InfoWindow({
+    content: 'this is a test ', //contentString,
+    maxWidth: 300
+  });*/
+  /*  var hooters2ndAveMarker = new google.maps.Marker({
+        position: hooters2ndAve,
+        map: map,
+        title: 'Stop for Beer and Wings'
+    });*/
+  google.maps.event.addListener(hootersMarker, 'click', function () {
+    infowindow.open(map, hootersMarker);
+    console.log('map object:', map, 'hooters marker:', hootersMarker);
+    alert(map);
+    alert(hootersMarker);
+  });
+  // #### end infowindow
   var whereTo = document.querySelector('#whereTo').value;
-     var hooters2ndAve = new google.maps.LatLng(36.1618914, -86.789464);
+  var hooters2ndAve = new google.maps.LatLng(36.1618914, -86.789464);
   var waypts = [{
     location: hooters2ndAve, //this is undefined
     stopover: true
   }];
-  directionsDisplay = new google.maps.DirectionsRenderer();
+  directionsDisplay = new google.maps.DirectionsRenderer( {
+     suppressMarkers : true
+  });
   directionsDisplay.setMap(map);
   navigator.geolocation.getCurrentPosition(function (position) {
     var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-  var request = {
-    origin: pos, //from geolocation
-    destination: whereTo, //from input.value of #whereTo
-    waypoints: waypts,
-    //placeId: 'ChIJOwE7_GTtwokRFq0uOwLSE9g'
-    optimizeWaypoints: false,
-    travelMode: google.maps.TravelMode.DRIVING
-  };
-  console.log('waypts', waypts);
-  console.log('map',  map);
-  console.log('pos', pos);
-  console.log('whereTo, this time including the input.value', whereTo);
-
-  directionsService.route(request, function (response, status) {
-    if (status == google.maps.DirectionsStatus.OK) {
-      directionsDisplay.setDirections(response);
-    }
-  });
+    var request = {
+      origin: pos,
+      destination: whereTo, //from input.value of #whereTo
+      waypoints: waypts,
+      //placeId: 'ChIJOwE7_GTtwokRFq0uOwLSE9g'
+      optimizeWaypoints: false,
+      display: false,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    console.log('waypts', waypts);
+    console.log('map', map);
+    console.log('pos', pos);
+    console.log('whereTo, this time including the input.value', whereTo);
+    directionsService.route(request, function (response, status) {
+      if (status == google.maps.DirectionsStatus.OK) {
+        directionsDisplay.setDirections(response);
+      }
+    });
   });
 }
-google.maps.event.addDomListener(window, 'load', initialize, calcRoute, closestHooters);
+google.maps.event.addDomListener(window, 'load', initialize, calcRoute/*, closestHooters*/); //, calcRoute, closestHooters
