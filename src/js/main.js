@@ -15,7 +15,7 @@ function initialize() {
       scrollwheel: false,
     };
     map = new google.maps.Map(mapCanvas, mapOptions);
-    console.log(map); //this works, produces map object
+    console.log('map', map); //this works, produces map object
     // Try HTML5 geolocation
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function (position) {
@@ -46,7 +46,7 @@ function initialize() {
           infowindow.open(map, marker); //this should be redone in the infobox class
         });
         map.setCenter(pos);
-        console.log(map);
+        console.log('map inside the geolocation function', map);
         //refactored code from weather app
         var btnWhereTo = document.querySelector('#btnWhereTo'); //creates the button element using the id from the button input
         btnWhereTo.onclick = function () {
@@ -66,16 +66,13 @@ function initialize() {
   //destLatLng returns a string,
   //which breaks the app
   //////////////////////////////
+ 
 function closestHooters() {
-
-  var input = document.querySelector('#whereTo');
-  var whereTo = input.value;
-  var destinationAddress = whereTo.split(' ').join('+');
+  var whereTo = document.querySelector('#whereTo').value.split(' ').join('+');
   var MAPS_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address=';
 
-  var hootersWaypoint;
-  $.get(MAPS_URL + destinationAddress, function (data) {
-    console.log(data); //now it sees this
+  $.get(MAPS_URL + whereTo, function (data) {
+    console.log('data', data); //now it sees this
     var hootersDistances = [];
     var destLat = data.results[0].geometry.location.lat;
     var destLatCoord = parseFloat(destLat); //otherwise returns a string
@@ -83,26 +80,30 @@ function closestHooters() {
     var destLng = data.results[0].geometry.location.lng;
     var destLngCoord = parseFloat(destLng);
     var destLatLng = new google.maps.LatLng(destLatCoord, destLngCoord);
-    console.log("both together", destLatLng);
+    console.log("both together; are these numbers?", destLatLng);
     var hooters2ndAve = new google.maps.LatLng(36.1618914, -86.789464);
     var hootersLebanonPike = new google.maps.LatLng(36.18633370000001, -86.63314799999999);
     var hootersLargoDrive = new google.maps.LatLng(36.081514, -86.7095413);
-    console.log("both together and the 2nd Ave Hooters", destLatLng, "2nd Ave", hooters2ndAve);
+    console.log("both together and the 2nd Ave Hooters", destLatLng, "2nd Ave", hooters2ndAve, "are these objects?");
     var distSecondAve = google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hooters2ndAve);
     var distLebanonPike = google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hootersLebanonPike);
     var distLargoDrive = google.maps.geometry.spherical.computeDistanceBetween(destLatLng, hootersLargoDrive);
     hootersDistances.push(distLargoDrive, distLebanonPike, distSecondAve);
     var nearestHooters = Math.min.apply(Math, hootersDistances);
-    hootersWaypoint = function () {
+    var hootersWaypoint = function () {
       if (nearestHooters === distSecondAve) {
-        return hooters2ndAve
+        return hooters2ndAve;
       } else if (nearestHooters === distLargoDrive) {
-        return hootersLargoDrive
+        return hootersLargoDrive;
       } else if (nearestHooters === distLebanonPike) {
-        return hootersLebanonPike
+        return hootersLebanonPike;
       }
-    }
-  });
+    };hootersWaypoint();
+    var hootersMarker = new google.maps.Marker({
+      position: hooters2ndAve,
+      map: map,
+      icon: 'http://edwinacevedo.com/directionsFrom/img/hooters-marker.png'
+  });});
 }
 
 function handleNoGeolocation(errorFlag) {
@@ -159,10 +160,34 @@ $(function () {
 //draw the route on the map
 /////////////////////////////
 function calcRoute(pos, destLatLng, hootersWaypoint) {
+  console.log('closestHooters', closestHooters);
+
+//placing the owl, these lines from here
+  var markers = [];
+google.maps.event.addListener(map, 'click', function(event) {
+    addMarker(event.latLng);
+  });
+function addMarker(waypts) {
+  var marker = new google.maps.Marker({
+    position: waypts,
+    map: map,
+    image: 'http://edwinacevedo.com/directionsFrom/img/hooters-marker.png'
+  });
+  markers.push(marker);
+}
+
+//to here
+  
+  var whereTo = document.querySelector('#whereTo').value;
+     var hooters2ndAve = new google.maps.LatLng(36.1618914, -86.789464);
   var waypts = [{
-    location: hootersWaypoint, //this is undefined
+    location: hooters2ndAve, //this is undefined
     stopover: true
   }];
+  directionsDisplay = new google.maps.DirectionsRenderer();
+  directionsDisplay.setMap(map);
+  navigator.geolocation.getCurrentPosition(function (position) {
+    var pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
   var request = {
     origin: pos, //from geolocation
     destination: whereTo, //from input.value of #whereTo
@@ -171,15 +196,16 @@ function calcRoute(pos, destLatLng, hootersWaypoint) {
     optimizeWaypoints: false,
     travelMode: google.maps.TravelMode.DRIVING
   };
-  console.log(waypts);
-  console.log(map);
-  console.log(pos);
-  console.log(whereTo);
+  console.log('waypts', waypts);
+  console.log('map',  map);
+  console.log('pos', pos);
+  console.log('whereTo, this time including the input.value', whereTo);
 
   directionsService.route(request, function (response, status) {
     if (status == google.maps.DirectionsStatus.OK) {
       directionsDisplay.setDirections(response);
     }
   });
+  });
 }
-google.maps.event.addDomListener(window, 'load', initialize, calcRoute);
+google.maps.event.addDomListener(window, 'load', initialize, calcRoute, closestHooters);
